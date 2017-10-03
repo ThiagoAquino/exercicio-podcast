@@ -8,8 +8,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.content.ContentValues;
+import android.util.Log;
+import android.net.Uri;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -25,6 +29,7 @@ import br.ufpe.cin.if710.podcast.R;
 import br.ufpe.cin.if710.podcast.domain.ItemFeed;
 import br.ufpe.cin.if710.podcast.domain.XmlFeedParser;
 import br.ufpe.cin.if710.podcast.ui.adapter.XmlFeedAdapter;
+import br.ufpe.cin.if710.podcast.db.*;
 
 public class MainActivity extends Activity {
 
@@ -40,6 +45,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         items = (ListView) findViewById(R.id.items);
+
     }
 
     @Override
@@ -76,6 +82,7 @@ public class MainActivity extends Activity {
         adapter.clear();
     }
 
+
     private class DownloadXmlTask extends AsyncTask<String, Void, List<ItemFeed>> {
         @Override
         protected void onPreExecute() {
@@ -87,6 +94,7 @@ public class MainActivity extends Activity {
             List<ItemFeed> itemList = new ArrayList<>();
             try {
                 itemList = XmlFeedParser.parse(getRssFeed(params[0]));
+                Save(itemList);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (XmlPullParserException e) {
@@ -118,6 +126,28 @@ public class MainActivity extends Activity {
             /**/
         }
     }
+
+
+    private void Save(List<ItemFeed> itemList){
+        for(ItemFeed item : itemList){
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(PodcastDBHelper.EPISODE_TITLE,item.getTitle());
+            contentValues.put(PodcastDBHelper.EPISODE_DATE,item.getPubDate());
+            contentValues.put(PodcastDBHelper.EPISODE_LINK,item.getLink());
+            contentValues.put(PodcastDBHelper.EPISODE_DESC, item.getDescription());
+            contentValues.put(PodcastDBHelper.EPISODE_DOWNLOAD_LINK, item.getDownloadLink());
+            contentValues.put(PodcastDBHelper.EPISODE_FILE_URI,"");
+
+            Uri uri = getContentResolver().insert(PodcastProviderContract.EPISODE_LIST_URI, contentValues);
+            if(uri != null){
+                Log.d("AddItem", "Item adicionado!");
+            } else {
+                Log.e("AddItem", "Falha ao adicionar o titulo " +item.getTitle());
+            }
+        }
+    }
+
+
 
     //TODO Opcional - pesquise outros meios de obter arquivos da internet
     private String getRssFeed(String feed) throws IOException {

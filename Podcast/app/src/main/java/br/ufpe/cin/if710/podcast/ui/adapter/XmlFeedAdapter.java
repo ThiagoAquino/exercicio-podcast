@@ -2,6 +2,8 @@ package br.ufpe.cin.if710.podcast.ui.adapter;
 
 import java.util.List;
 import android.content.Context;
+import android.content.Intent;
+import android.util.EventLogTags;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -9,10 +11,13 @@ import android.widget.TextView;
 
 import br.ufpe.cin.if710.podcast.R;
 import br.ufpe.cin.if710.podcast.domain.ItemFeed;
+import br.ufpe.cin.if710.podcast.ui.EpisodeDetailActivity;
 
 public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
 
     int linkResource;
+    public static String TITLE = "Title";
+    public static String DESCRIPTION = "Description";
 
     public XmlFeedAdapter(Context context, int resource, List<ItemFeed> objects) {
         super(context, resource, objects);
@@ -63,8 +68,25 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
+
+        final ItemFeed item = getItem(position);
+
         holder.item_title.setText(getItem(position).getTitle());
         holder.item_date.setText(getItem(position).getPubDate());
+
+
+        /*Criando o evento de clicar na lista e também já criando o intent para abrir a outra tela
+        * passando o titulo e a descrição
+        */
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i =  new Intent(getContext(), EpisodeDetailActivity.class);
+                i.putExtra(TITLE, item.getTitle());
+                i.putExtra(DESCRIPTION, item.getDescription());
+                getContext().startActivity(i);
+            }
+        });
         return convertView;
     }
 }
