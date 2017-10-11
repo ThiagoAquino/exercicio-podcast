@@ -54,11 +54,11 @@ public class PodcastProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
         // TODO: Implement this to handle requests to insert a new row.
       final SQLiteDatabase database = podcastDBHelper.getWritableDatabase();
-      long id = database.insert(PodcastProviderContract.EPISODE_TABLE, null, values);
+      long data = database.insert(PodcastProviderContract.EPISODE_TABLE, null, values);
       Uri retorno = null;
-      if (id > 0) {
+      if (data > 0) {
             //inserção feita com sucesso
-            retorno = ContentUris.withAppendedId(PodcastProviderContract.EPISODE_LIST_URI, id);
+            retorno = ContentUris.withAppendedId(PodcastProviderContract.EPISODE_LIST_URI, data);
             Log.d("PodcastProvider", "inserindo" + retorno.toString());
       } else {
             throw new android.database.SQLException("Falha na inserção em: " +uri);

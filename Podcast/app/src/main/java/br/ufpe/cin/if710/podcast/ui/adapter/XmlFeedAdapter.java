@@ -3,21 +3,27 @@ package br.ufpe.cin.if710.podcast.ui.adapter;
 import java.util.List;
 import android.content.Context;
 import android.content.Intent;
-import android.util.EventLogTags;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import br.ufpe.cin.if710.podcast.R;
 import br.ufpe.cin.if710.podcast.domain.ItemFeed;
+import br.ufpe.cin.if710.podcast.service.DownloadService;
 import br.ufpe.cin.if710.podcast.ui.EpisodeDetailActivity;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
 
     int linkResource;
     public static String TITLE = "Title";
     public static String DESCRIPTION = "Description";
+    public static String uri;
 
     public XmlFeedAdapter(Context context, int resource, List<ItemFeed> objects) {
         super(context, resource, objects);
@@ -51,19 +57,21 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
 	/**/
 
     //http://developer.android.com/training/improving-layouts/smooth-scrolling.html#ViewHolder
-    static class ViewHolder {
+     static class ViewHolder {
         TextView item_title;
         TextView item_date;
+        Button baixar;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
+      final ViewHolder holder;
         if (convertView == null) {
             convertView = View.inflate(getContext(), linkResource, null);
             holder = new ViewHolder();
             holder.item_title = (TextView) convertView.findViewById(R.id.item_title);
             holder.item_date = (TextView) convertView.findViewById(R.id.item_date);
+            holder.baixar = (Button) convertView.findViewById(R.id.baixar);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -73,6 +81,7 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
 
         holder.item_title.setText(getItem(position).getTitle());
         holder.item_date.setText(getItem(position).getPubDate());
+        uri = getItem(position).getDownloadLink();
 
 
         /*Criando o evento de clicar na lista e também já criando o intent para abrir a outra tela
@@ -84,9 +93,24 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
                 Intent i =  new Intent(getContext(), EpisodeDetailActivity.class);
                 i.putExtra(TITLE, item.getTitle());
                 i.putExtra(DESCRIPTION, item.getDescription());
+                i.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 getContext().startActivity(i);
+
             }
         });
+
+
+
+        holder.baixar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getContext(), DownloadService.class);
+                i.setData(Uri.parse(uri));
+                Toast.makeText(getContext(), "baixando...", Toast.LENGTH_SHORT).show();
+                getContext().startService(i);
+            }
+        });
+
         return convertView;
     }
 }

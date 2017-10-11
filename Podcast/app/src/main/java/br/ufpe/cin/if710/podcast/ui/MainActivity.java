@@ -1,7 +1,12 @@
 package br.ufpe.cin.if710.podcast.ui;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -22,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.AccessControlContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +44,9 @@ public class MainActivity extends Activity {
     //TODO teste com outros links de podcast
 
     private ListView items;
+    //private PodcastProvider database;
+    //private PodcastDBHelper podhelper;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +81,35 @@ public class MainActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        new DownloadXmlTask().execute(RSS_FEED);
+        //Cursor c = database.query("title",podhelper.columns,null,null,null);
+
+        if(isOnline(getApplicationContext())){
+            new DownloadXmlTask().execute(RSS_FEED);
+        } else {
+            //Chamada da função para carregar o listview do banco;
+           // throw new UnsupportedOperationException("Not yet implemented");
+            List<ItemFeed> itemList = new ArrayList<>();
+            Cursor c = getApplicationContext().getContentResolver().query(PodcastProviderContract.EPISODE_LIST_URI, null, "", null, null);
+            int i = 0;
+            while(c.moveToNext()){
+                String item_title = c.getString(c.getColumnIndex(PodcastProviderContract.TITLE));
+                String item_link = c.getString(c.getColumnIndex(PodcastProviderContract.EPISODE_LINK));
+                String item_date = c.getString(c.getColumnIndex(PodcastProviderContract.DATE));
+                String item_description = c.getString(c.getColumnIndex(PodcastProviderContract.DESCRIPTION));
+                String item_download_link = c.getString(c.getColumnIndex(PodcastProviderContract.DOWNLOAD_LINK));
+                String item_uri = c.getString(c.getColumnIndex(PodcastProviderContract.EPISODE_URI));
+                i++;
+                itemList.add(new ItemFeed(item_title, item_link, item_date, item_description, item_download_link));
+            }
+
+            Log.d("count",""+i);
+            XmlFeedAdapter adapter = new XmlFeedAdapter(getApplicationContext(), R.layout.itemlista, itemList);
+            //atualizar o list view
+            items.setAdapter(adapter);
+            items.setTextFilterEnabled(true);
+
+        }
+
     }
 
     @Override
@@ -147,6 +184,15 @@ public class MainActivity extends Activity {
         }
     }
 
+    //Verificação se o dispositivo está conectado a internet;
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.isConnected())
+            return true;
+        else
+            return false;
+    }
 
 
     //TODO Opcional - pesquise outros meios de obter arquivos da internet
@@ -172,3 +218,5 @@ public class MainActivity extends Activity {
         return rssFeed;
     }
 }
+
+
