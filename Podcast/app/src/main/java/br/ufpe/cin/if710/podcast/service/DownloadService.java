@@ -39,8 +39,7 @@ public class DownloadService extends IntentService {
     public void onHandleIntent(Intent i) {
             try {
                 //checar se tem permissao... Android 6.0+
-                //File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PODCASTS);
-                File root = Environment.getDownloadCacheDirectory();
+                File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                 root.mkdirs();
                 File output = new File(root, i.getData().getLastPathSegment());
                 if (output.exists()) {
