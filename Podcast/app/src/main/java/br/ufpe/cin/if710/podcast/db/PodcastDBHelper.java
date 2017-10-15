@@ -29,7 +29,7 @@ public class PodcastDBHelper extends SQLiteOpenHelper {
     public final static String EPISODE_DATE = "pubDate";
     public final static String EPISODE_LINK = "link";
     public final static String EPISODE_DESC = "description";
-        public final static String EPISODE_DOWNLOAD_LINK = "downloadLink";
+    public final static String EPISODE_DOWNLOAD_LINK = "downloadLink";
     public final static String EPISODE_FILE_URI = "downloadUri";
 
     public final static String[] columns = {

@@ -87,6 +87,7 @@ public class PodcastProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
         // TODO: Implement this to handle requests to update one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        //throw new UnsupportedOperationException("Not yet implemented");
+        return podcastDBHelper.getWritableDatabase().update(PodcastDBHelper.DATABASE_TABLE,values, selection, selectionArgs);
     }
 }

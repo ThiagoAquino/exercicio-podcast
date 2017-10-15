@@ -81,8 +81,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        //Cursor c = database.query("title",podhelper.columns,null,null,null);
-
+        //Cursor c = database.query("title",podhelper.columns,null,null,null)
         if(isOnline(getApplicationContext())){
             new DownloadXmlTask().execute(RSS_FEED);
         } else {

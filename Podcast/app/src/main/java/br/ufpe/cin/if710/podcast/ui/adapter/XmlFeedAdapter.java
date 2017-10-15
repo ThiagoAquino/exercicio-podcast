@@ -3,6 +3,7 @@ package br.ufpe.cin.if710.podcast.ui.adapter;
 import java.util.List;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
@@ -107,6 +108,10 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
                 Intent i = new Intent(getContext(), DownloadService.class);
                 i.setData(Uri.parse(uri));
                 Toast.makeText(getContext(), "baixando...", Toast.LENGTH_SHORT).show();
+
+                //Mudando botão
+                holder.baixar.setEnabled(false);
+                holder.baixar.setText("Baixando");
                 getContext().startService(i);
             }
         });
